@@ -10,7 +10,7 @@ const taskStatus={
 } as const
 
 export interface ITask extends Document {
-    Name: string   
+    name: string   
     description: string,
     project:Types.ObjectId,
     status: TaskStatus
