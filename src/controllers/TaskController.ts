@@ -4,6 +4,7 @@ import Task from "../models/Task"
 
 
 
+
 export class TaskController{
     static createTask = async (req:Request, res:Response)=>{
 
@@ -31,8 +32,14 @@ export class TaskController{
     }
 
     static getTaskById= async (req:Request, res:Response)=>{
-        try {            
-            res.json(req.task)
+        try {    
+            const  task = await Task.findById(req.task._id)
+                          .populate({ path: 'completeBy.user', select: 'id name email' })
+                        .populate({ path: 'notes', populate:{path:'createdBy',select: 'id name email'} });
+                        
+        
+            
+                        res.json(task)
         } catch (error) {
               res.status(500).json({error:'Hubo un error'})
         }
@@ -59,9 +66,11 @@ export class TaskController{
             taskInArray => taskInArray.toString() !== req.task._id.toString())        
 
             await Promise.allSettled([req.task.deleteOne(), req.project.save()])
+           
             res.send("Tarea Eliminada Correctamente")
 
         } catch (error) {
+            console.log("Error Real", error)
               res.status(500).json({error:'Hubo un error'})
         }
     }
@@ -70,6 +79,11 @@ export class TaskController{
         try {
              const{status}=req.body
              req.task.status=status
+             const data={
+                user: req.user._id,
+                status
+             }
+             req.task.completeBy.push(data)
              await req.task.save()
              res.send('Tarea Actulizada')
 

@@ -1,18 +1,31 @@
 {
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "color": "^5.0.3",
     "colors": "^1.4.0",
+    "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-validator": "^7.3.2",
     "init": "^0.1.2",
-    "mongoose": "^9.9.1"
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.9.1",
+    "morgan": "^1.11.0",
+    "nodemailer": "^10.0.10"
   },
   "scripts": {
-    "dev": "nodemon --exec tsx src/index.ts"
+    "dev": "nodemon --exec tsx src/index.ts",
+    "dev:api": "nodemon --exec tsx src/index.ts --api",
+    "build": "tsc",
+    "start": "node ./dist/index.js"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
+    "@types/nodemailer": "^8.0.2",
     "nodemon": "^3.1.14",
     "ts-node": "^10.9.2",
     "tsx": "^4.23.1",

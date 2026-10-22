@@ -6,7 +6,11 @@ export class ProjectController{
 
      static CreateProjects = async (req:Request, res:Response)=>{
         const project= new Project(req.body)
-       try {
+     
+        //asignar un manager
+        project.manager=req.user._id
+
+    try {
          await project.save()
          res.send('Proyecto Creado Correctamente')
        } catch (error) {
@@ -16,13 +20,19 @@ export class ProjectController{
     
     static getAllProjects = async (req:Request, res:Response)=>{
         try {
-            const projects= await Project.find({})
+            const projects= await Project.find({
+                $or:[
+                    {manager:{$in: [req.user._id]}},
+                    {team: {$in: [req.user._id]}}
+                ]
+            })
             res.json(projects)
         } catch (error) {
             console.log(error)
         }
         
     }
+   
 
     static getProjectById= async(req:Request, res:Response)=>{
        const {id}=req.params
@@ -32,25 +42,25 @@ export class ProjectController{
                 const error =new Error('Proyecto no encontrado')
                 return res.status(404).json({error:error.message})
             }
+            if(project.manager.toString() !== req.user._id.toString() && !project.team.includes(req.user._id)){
+                const error =new Error('Accion no Valida')
+                return res.status(404).json({error:error.message})
+            }
             res.json(project)
         } catch (error) {
+            console.log("si errore")
             console.log(error)
         }
     }
 
     static updateProjectById= async(req:Request, res:Response)=>{
-       const {id}=req.params
-          try {
-            const project= await Project.findById(id)
 
-             if(!project){
-                const error =new Error('Proyecto no encontrado')
-                return res.status(404).json({error:error.message})
-            }
-            project.clientName=req.body.clientName
-            project.projectName= req.body.projectName
-            project.description=req.body.descripcion
-            await project.save()
+          try {
+         
+            req.project.clientName=req.body.clientName
+            req.project.projectName= req.body.projectName
+            req.project.description=req.body.description
+            await req.project.save()
             res.send('Protecto Actualizado ')          
         } catch (error) {
             console.log(error)
@@ -58,14 +68,8 @@ export class ProjectController{
     }
 
     static deleteProject= async(req:Request, res:Response)=>{
-       const {id}=req.params
-          try {
-            const project = await Project.findById(id)
-            if(!project){
-                const error =new Error('Proyecto no encontrado')
-                return res.status(404).json({error:error.message})
-            }
-          await project.deleteOne()
+   try{
+          await req.project.deleteOne()
           res.send('Proyecto Eliminado')
                       
         } catch (error) {
